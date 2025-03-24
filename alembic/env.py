@@ -3,7 +3,6 @@ import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
-from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import context
 

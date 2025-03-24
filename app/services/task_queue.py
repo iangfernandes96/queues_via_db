@@ -2,12 +2,12 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
-from sqlalchemy import and_, delete, or_, select, update
+from sqlalchemy import and_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.db.models import Task, TaskPriority, TaskStatus, Worker
-from app.schemas.task import TaskCreate, TaskPriorityEnum, TaskUpdate
+from app.db.models import Task, TaskStatus
+from app.schemas.task import TaskCreate, TaskUpdate
 
 
 class TaskQueueService:

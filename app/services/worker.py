@@ -1,21 +1,35 @@
+"""Worker service module for handling worker-related database operations.
+
+This module provides methods for managing worker entities, including
+creating, retrieving, and updating worker records in the database.
+"""
 from datetime import datetime, timezone
-from typing import Optional, Union
+from typing import Optional, Sequence, Union
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 from app.db.models import Worker
+from app.schemas.task import WorkerCreate
+
+# Import our stub for better typing
+from app.services.sa_types import select
 
 
 class WorkerService:
+    """Service class for managing workers in the task queue system.
+
+    Provides methods for creating workers, retrieving worker information,
+    updating heartbeats, and managing worker status.
+    """
+
     @staticmethod
-    async def create_worker(db: AsyncSession, name: str) -> Worker:
-        """Create a new worker."""
+    async def create_worker(db: AsyncSession, worker_in: WorkerCreate) -> Worker:
+        """Create a new worker in the database."""
         now = datetime.now(timezone.utc)
         db_worker = Worker(
-            name=name,
-            status="active",
+            name=worker_in.name,
+            status=worker_in.status,
             last_heartbeat=now,
             created_at=now,
             updated_at=now,
@@ -34,35 +48,47 @@ class WorkerService:
         return result.scalar_one_or_none()
 
     @staticmethod
+    async def get_workers(
+        db: AsyncSession, skip: int = 0, limit: int = 100
+    ) -> Sequence[Worker]:
+        """Get all workers with pagination."""
+        result = await db.execute(select(Worker).offset(skip).limit(limit))
+        return result.scalars().all()
+
+    @staticmethod
     async def update_heartbeat(
         db: AsyncSession, worker_id: Union[str, UUID]
     ) -> Optional[Worker]:
-        """Update the last heartbeat time of a worker."""
-        db_worker = await WorkerService.get_worker(db, worker_id)
-        if not db_worker:
+        """Update a worker's heartbeat timestamp."""
+        worker = await WorkerService.get_worker(db, worker_id)
+        if not worker:
             return None
 
         now = datetime.now(timezone.utc)
-        db_worker.last_heartbeat = now
-        db_worker.updated_at = now
-        db.add(db_worker)
+        # Update the worker's heartbeat time
+        worker.last_heartbeat = now
+        worker.updated_at = now
+
+        db.add(worker)
         await db.commit()
-        await db.refresh(db_worker)
-        return db_worker
+        await db.refresh(worker)
+        return worker
 
     @staticmethod
     async def set_worker_status(
         db: AsyncSession, worker_id: Union[str, UUID], status: str
     ) -> Optional[Worker]:
-        """Set the status of a worker."""
-        db_worker = await WorkerService.get_worker(db, worker_id)
-        if not db_worker:
+        """Set a worker's status."""
+        worker = await WorkerService.get_worker(db, worker_id)
+        if not worker:
             return None
 
         now = datetime.now(timezone.utc)
-        db_worker.status = status
-        db_worker.updated_at = now
-        db.add(db_worker)
+        # Update the worker's status and updated_at time
+        worker.status = status
+        worker.updated_at = now
+
+        db.add(worker)
         await db.commit()
-        await db.refresh(db_worker)
-        return db_worker
+        await db.refresh(worker)
+        return worker

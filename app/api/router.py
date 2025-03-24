@@ -1,9 +1,14 @@
+"""API router module for the Task Queue System.
+
+This module configures and includes all API route endpoints for the application.
+"""
 from fastapi import APIRouter
 
 from app.api.endpoints import tasks, workers
 
-api_router = APIRouter()
+# Main API router that includes all endpoint routers
+router = APIRouter()
 
-# Include all API endpoints
-api_router.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
-api_router.include_router(workers.router, prefix="/workers", tags=["workers"])
+# Include additional routers with their prefixes
+router.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
+router.include_router(workers.router, prefix="/workers", tags=["workers"])

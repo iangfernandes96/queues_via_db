@@ -1,16 +1,20 @@
+"""Main application module for the Task Queue API.
+
+This module initializes and configures the FastAPI application,
+sets up database connections, and includes all API routers.
+"""
 import logging
 
 from fastapi import Depends, FastAPI
-
-from app.api.endpoints import tasks, workers
-from app.db.database import Base, engine, get_db
 
 try:
     from sqlalchemy.ext.asyncio import AsyncSession
 except ImportError:
     from sqlalchemy.ext.asyncio import AsyncSession  # type: ignore
 
+from app.api.endpoints import tasks, workers
 from app.core.config import settings
+from app.db.database import Base, engine, get_db
 
 # Create the FastAPI app
 app = FastAPI(
@@ -38,6 +42,10 @@ logging.basicConfig(
 # Create async startup and shutdown events
 @app.on_event("startup")
 async def startup():
+    """Startup event handler that initializes the database.
+
+    Creates database tables if they don't exist and logs application startup.
+    """
     # Create tables if they don't exist
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -46,6 +54,10 @@ async def startup():
 
 @app.on_event("shutdown")
 async def shutdown():
+    """Shutdown event handler that cleans up resources.
+
+    Closes database connections and logs application shutdown.
+    """
     # Close the database connection
     await engine.dispose()
     logging.info("Application shutdown")
@@ -58,6 +70,7 @@ app.include_router(workers.router, prefix="/api/workers", tags=["workers"])
 
 # Health check endpoint
 @app.get("/", tags=["health"])
-async def health_check(db: AsyncSession = Depends(get_db)):
+async def health_check(db: AsyncSession = Depends(get_db)):  # noqa
+    """Health check endpoint to verify API and database are operational."""
     # Basic health check to ensure API and DB are working
     return {"status": "ok", "message": "Task Queue Service is running"}

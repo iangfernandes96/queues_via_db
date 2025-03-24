@@ -1,3 +1,4 @@
+"""Worker module for processing tasks from the queue system."""
 import asyncio
 import logging
 import os
@@ -8,11 +9,12 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.core.config import settings
+from app.schemas.task import Task
 from app.services.task_queue import TaskQueueService
-from app.services.worker import WorkerService
+from app.services.worker import WorkerCreate, WorkerService
 
 # Configure logging
 logging.basicConfig(
@@ -41,7 +43,10 @@ async def get_db():
 
 
 class Worker:
+    """Worker class that processes tasks from the queue."""
+
     def __init__(self):
+        """Initialize worker with default settings and set up signal handlers."""
         self.running = True
         self.worker_id: Optional[UUID] = None
         self.worker_name = f"worker-{socket.gethostname()}-{os.getpid()}"
@@ -54,7 +59,7 @@ class Worker:
 
         logger.info(f"Worker {self.worker_name} starting up")
 
-    def handle_signal(self, signum, frame):
+    def handle_signal(self, signum, frame):  # noqa
         """Handle termination signals."""
         logger.info(f"Received signal {signum}, shutting down...")
         self.running = False
@@ -62,8 +67,10 @@ class Worker:
     async def register_worker(self):
         """Register worker in the database."""
         async with get_db() as db:
-            worker = await WorkerService.create_worker(db=db, name=self.worker_name)
-            self.worker_id = worker.id
+            worker = await WorkerService.create_worker(
+                db=db, worker_in=WorkerCreate(name=self.worker_name)
+            )
+            self.worker_id = worker.id  # type: ignore
             logger.info(f"Worker registered with ID: {self.worker_id}")
 
     async def update_heartbeat(self):
@@ -75,7 +82,7 @@ class Worker:
         async with get_db() as db:
             await WorkerService.update_heartbeat(db=db, worker_id=self.worker_id)
 
-    async def process_task(self, task):
+    async def process_task(self, task: Task):
         """Process a task."""
         logger.info(f"Processing task {task.id}: {task.name}")
 
@@ -170,6 +177,7 @@ class Worker:
 
 
 async def main():
+    """Entry point for the worker process."""
     worker = Worker()
     await worker.run()
 

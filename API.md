@@ -265,4 +265,4 @@ Update the status of a worker.
 - `1`: LOW
 - `2`: MEDIUM (default)
 - `3`: HIGH
-- `4`: CRITICAL 
+- `4`: CRITICAL

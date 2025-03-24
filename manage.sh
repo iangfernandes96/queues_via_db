@@ -67,7 +67,7 @@ function migrate {
 
 function direct_migrate {
     echo "Running database migrations directly against the database..."
-    
+
     # Check if postgres container is running
     if ! docker compose ps | grep -q "postgres.*running"; then
         echo "Starting postgres container..."
@@ -76,7 +76,7 @@ function direct_migrate {
         echo "Waiting for postgres to be ready..."
         sleep 5
     fi
-    
+
     # Create a temporary container that connects to the Postgres network
     # and runs alembic migrations directly
     docker run --rm \
@@ -91,7 +91,7 @@ function direct_migrate {
 
 function migration_status {
     echo "Checking migration status..."
-    
+
     # Check if postgres container is running
     if ! docker compose ps | grep -q "postgres.*running"; then
         echo "Starting postgres container..."
@@ -100,7 +100,7 @@ function migration_status {
         echo "Waiting for postgres to be ready..."
         sleep 5
     fi
-    
+
     # Create a temporary container that connects to the Postgres network
     # and runs alembic current command to show migration status
     docker run --rm \
@@ -139,45 +139,45 @@ function create_task {
     # Make API call
     echo "Creating task with name: $name"
     echo "Request body: $request_body"
-    
+
     curl -s -X POST -H "Content-Type: application/json" -d "$request_body" http://localhost:8000/api/tasks | jq .
 }
 
 function task_status {
     local task_id=$1
-    
+
     if [ -z "$task_id" ]; then
         echo "Usage: $0 task-status <task_uuid>"
         echo "Example: $0 task-status 123e4567-e89b-12d3-a456-426614174000"
         exit 1
     fi
-    
+
     echo "Getting status for task with UUID: $task_id"
     curl -s -X GET http://localhost:8000/api/tasks/$task_id | jq .
 }
 
 function pause_task {
     local task_id=$1
-    
+
     if [ -z "$task_id" ]; then
         echo "Usage: $0 pause-task <task_uuid>"
         echo "Example: $0 pause-task 123e4567-e89b-12d3-a456-426614174000"
         exit 1
     fi
-    
+
     echo "Pausing task with UUID: $task_id"
     curl -s -X POST http://localhost:8000/api/tasks/$task_id/pause | jq .
 }
 
 function resume_task {
     local task_id=$1
-    
+
     if [ -z "$task_id" ]; then
         echo "Usage: $0 resume-task <task_uuid>"
         echo "Example: $0 resume-task 123e4567-e89b-12d3-a456-426614174000"
         exit 1
     fi
-    
+
     echo "Resuming task with UUID: $task_id"
     curl -s -X POST http://localhost:8000/api/tasks/$task_id/resume | jq .
 }
@@ -237,4 +237,4 @@ case "$1" in
         show_help
         exit 1
         ;;
-esac 
+esac

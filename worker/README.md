@@ -33,4 +33,4 @@ To increase task processing capacity, you can increase the number of worker repl
 ```yaml
 deploy:
   replicas: 4  # Increase this number as needed
-``` 
+```

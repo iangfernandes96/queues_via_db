@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 from typing import Optional, Union
+from uuid import UUID
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from uuid import UUID
 
 from app.db.models import Worker
 
@@ -17,7 +18,7 @@ class WorkerService:
             status="active",
             last_heartbeat=now,
             created_at=now,
-            updated_at=now
+            updated_at=now,
         )
         db.add(db_worker)
         await db.commit()
@@ -40,7 +41,7 @@ class WorkerService:
         db_worker = await WorkerService.get_worker(db, worker_id)
         if not db_worker:
             return None
-        
+
         now = datetime.now(timezone.utc)
         db_worker.last_heartbeat = now
         db_worker.updated_at = now
@@ -48,7 +49,7 @@ class WorkerService:
         await db.commit()
         await db.refresh(db_worker)
         return db_worker
-    
+
     @staticmethod
     async def set_worker_status(
         db: AsyncSession, worker_id: Union[str, UUID], status: str
@@ -57,11 +58,11 @@ class WorkerService:
         db_worker = await WorkerService.get_worker(db, worker_id)
         if not db_worker:
             return None
-        
+
         now = datetime.now(timezone.utc)
         db_worker.status = status
         db_worker.updated_at = now
         db.add(db_worker)
         await db.commit()
         await db.refresh(db_worker)
-        return db_worker 
+        return db_worker

@@ -1,8 +1,10 @@
-from fastapi import FastAPI, Depends
 import logging
 
+from fastapi import Depends, FastAPI
+
 from app.api.endpoints import tasks, workers
-from app.db.database import engine, get_db, Base
+from app.db.database import Base, engine, get_db
+
 try:
     from sqlalchemy.ext.asyncio import AsyncSession
 except ImportError:
@@ -32,6 +34,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
+
 # Create async startup and shutdown events
 @app.on_event("startup")
 async def startup():
@@ -40,18 +43,21 @@ async def startup():
         await conn.run_sync(Base.metadata.create_all)
     logging.info("Application started")
 
+
 @app.on_event("shutdown")
 async def shutdown():
     # Close the database connection
     await engine.dispose()
     logging.info("Application shutdown")
 
+
 # Include routers
 app.include_router(tasks.router, prefix="/api/tasks", tags=["tasks"])
 app.include_router(workers.router, prefix="/api/workers", tags=["workers"])
+
 
 # Health check endpoint
 @app.get("/", tags=["health"])
 async def health_check(db: AsyncSession = Depends(get_db)):
     # Basic health check to ensure API and DB are working
-    return {"status": "ok", "message": "Task Queue Service is running"} 
+    return {"status": "ok", "message": "Task Queue Service is running"}

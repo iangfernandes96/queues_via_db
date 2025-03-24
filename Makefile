@@ -34,4 +34,4 @@ db:
 
 # Run tests
 test:
-	docker compose exec api pytest 
+	docker compose exec api pytest

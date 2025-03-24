@@ -1,9 +1,8 @@
-import os
 import asyncio
+import os
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import context
@@ -20,6 +19,7 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 from app.db.models import Base
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -28,12 +28,12 @@ target_metadata = Base.metadata
 # ... etc.
 
 # override config.get_main_option("sqlalchemy.url") from environment if available
-if os.environ.get('DATABASE_URL'):
-    db_url = os.environ['DATABASE_URL']
+if os.environ.get("DATABASE_URL"):
+    db_url = os.environ["DATABASE_URL"]
     # Convert to asyncpg format for consistency with application
     if "postgresql://" in db_url and "postgresql+asyncpg://" not in db_url:
         db_url = db_url.replace("postgresql://", "postgresql+asyncpg://")
-    config.set_main_option('sqlalchemy.url', db_url)
+    config.set_main_option("sqlalchemy.url", db_url)
 
 
 def run_migrations_offline() -> None:
@@ -52,7 +52,7 @@ def run_migrations_offline() -> None:
     # For offline mode, convert asyncpg URL back to standard format if needed
     if "postgresql+asyncpg://" in url:
         url = url.replace("postgresql+asyncpg://", "postgresql://")
-    
+
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -65,10 +65,7 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection):
-    context.configure(
-        connection=connection,
-        target_metadata=target_metadata
-    )
+    context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
         context.run_migrations()
@@ -81,14 +78,14 @@ async def run_migrations_online_async() -> None:
     and associate a connection with the context.
     """
     url = config.get_main_option("sqlalchemy.url")
-    
+
     # Alembic doesn't support asyncpg directly, so we need to convert it
     # to a standard psycopg2 URL for the connection
     if "postgresql+asyncpg://" in url:
         sync_url = url.replace("postgresql+asyncpg://", "postgresql://")
     else:
         sync_url = url
-    
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
@@ -108,4 +105,4 @@ def run_migrations_online() -> None:
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    run_migrations_online() 
+    run_migrations_online()

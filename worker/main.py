@@ -1,14 +1,15 @@
-import os
-import signal
 import asyncio
 import logging
+import os
+import signal
 import socket
-from datetime import datetime
 from contextlib import asynccontextmanager
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
+
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
 from app.services.task_queue import TaskQueueService
@@ -17,7 +18,7 @@ from app.services.worker import WorkerService
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger("worker")
 
@@ -27,9 +28,7 @@ SQLALCHEMY_DATABASE_URL = str(settings.DATABASE_URL).replace(
     "postgresql://", "postgresql+asyncpg://"
 )
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=False)
-AsyncSessionLocal = sessionmaker(
-    engine, expire_on_commit=False, class_=AsyncSession
-)
+AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
 @asynccontextmanager
@@ -49,24 +48,22 @@ class Worker:
         self.worker_name = f"worker-{socket.gethostname()}-{os.getpid()}"
         self.poll_interval = settings.WORKER_POLL_INTERVAL
         self.max_tasks = settings.WORKER_MAX_TASKS
-        
+
         # Set up signal handlers
         signal.signal(signal.SIGTERM, self.handle_signal)
         signal.signal(signal.SIGINT, self.handle_signal)
-        
+
         logger.info(f"Worker {self.worker_name} starting up")
 
     def handle_signal(self, signum, frame):
         """Handle termination signals."""
         logger.info(f"Received signal {signum}, shutting down...")
         self.running = False
-        
+
     async def register_worker(self):
         """Register worker in the database."""
         async with get_db() as db:
-            worker = await WorkerService.create_worker(
-                db=db, name=self.worker_name
-            )
+            worker = await WorkerService.create_worker(db=db, name=self.worker_name)
             self.worker_id = worker.id
             logger.info(f"Worker registered with ID: {self.worker_id}")
 
@@ -75,77 +72,77 @@ class Worker:
         if self.worker_id is None:
             logger.error("Worker ID is None, cannot update heartbeat")
             return None
-            
+
         async with get_db() as db:
-            await WorkerService.update_heartbeat(
-                db=db, worker_id=self.worker_id
-            )
-    
+            await WorkerService.update_heartbeat(db=db, worker_id=self.worker_id)
+
     async def process_task(self, task):
         """Process a task."""
         logger.info(f"Processing task {task.id}: {task.name}")
-        
+
         try:
             # Here you would implement the actual task execution
             # This is a simple example that just sleeps for a few seconds
             result = {
-                "status": "success", 
-                "processed_at": datetime.utcnow().isoformat()
+                "status": "success",
+                "processed_at": datetime.utcnow().isoformat(),
             }
-            
+
             # In a real implementation, you would process the task payload
             # and return a result based on the processing
-            
+
             # Sleep to simulate processing time - use asyncio.sleep for async operation
             await asyncio.sleep(2)
-            
+
             # Mark the task as completed
             async with get_db() as db:
                 await TaskQueueService.complete_task(
                     db=db, task_id=task.id, result=result
                 )
                 logger.info(f"Task {task.id} completed successfully")
-                
+
             return True
         except Exception as e:
             # If an error occurs, mark the task as failed
             error_message = str(e)
             logger.error(f"Error processing task {task.id}: {error_message}")
-            
+
             async with get_db() as db:
                 await TaskQueueService.fail_task(
                     db=db, task_id=task.id, error=error_message
                 )
-                
+
             return False
-    
+
     async def run(self):
         """Run the worker loop."""
         await self.register_worker()
         logger.info(f"Worker {self.worker_id} ({self.worker_name}) started")
-        
+
         last_heartbeat_time = datetime.utcnow()
         heartbeat_interval = 30  # seconds
-        
+
         try:
             while self.running:
                 # Update heartbeat every 30 seconds
                 current_time = datetime.utcnow()
-                if (current_time - last_heartbeat_time).total_seconds() >= heartbeat_interval:
+                if (
+                    current_time - last_heartbeat_time
+                ).total_seconds() >= heartbeat_interval:
                     await self.update_heartbeat()
                     last_heartbeat_time = current_time
-                
+
                 # Get next task
                 if self.worker_id is None:
                     logger.error("Worker ID is None, cannot get next task")
                     await asyncio.sleep(5)  # Wait before retrying
                     continue
-                    
+
                 async with get_db() as db:
                     task = await TaskQueueService.get_next_task(
                         db=db, worker_id=self.worker_id
                     )
-                
+
                 if task:
                     # Process the task
                     await self.process_task(task)
@@ -179,4 +176,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

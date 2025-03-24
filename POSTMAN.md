@@ -115,4 +115,4 @@ If you encounter errors:
 
 ## Note on UUIDs
 
-The system uses UUIDs instead of integers for task and worker IDs. These UUIDs are generated automatically when creating new resources. The Postman collection automatically captures these UUIDs and stores them in environment variables, so you don't need to manually copy them between requests. 
+The system uses UUIDs instead of integers for task and worker IDs. These UUIDs are generated automatically when creating new resources. The Postman collection automatically captures these UUIDs and stores them in environment variables, so you don't need to manually copy them between requests.

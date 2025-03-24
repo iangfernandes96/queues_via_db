@@ -1,7 +1,8 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Body, Path
-from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+
+from fastapi import APIRouter, Body, Depends, HTTPException, Path
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 from app.schemas.task import Worker, WorkerCreate
@@ -21,7 +22,7 @@ async def create_worker(worker: WorkerCreate, db: AsyncSession = Depends(get_db)
 @router.get("/{worker_id}", response_model=Worker)
 async def get_worker(
     worker_id: UUID = Path(..., description="The UUID of the worker to retrieve"),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Get a worker by ID.
@@ -35,7 +36,7 @@ async def get_worker(
 @router.patch("/{worker_id}/heartbeat", response_model=Worker)
 async def update_heartbeat(
     worker_id: UUID = Path(..., description="The UUID of the worker to update"),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Update the heartbeat of a worker.
@@ -49,8 +50,8 @@ async def update_heartbeat(
 @router.patch("/{worker_id}/status", response_model=Worker)
 async def set_worker_status(
     worker_id: UUID = Path(..., description="The UUID of the worker to update"),
-    status: str = Body(..., embed=True), 
-    db: AsyncSession = Depends(get_db)
+    status: str = Body(..., embed=True),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Set the status of a worker.
@@ -60,4 +61,4 @@ async def set_worker_status(
     )
     if db_worker is None:
         raise HTTPException(status_code=404, detail="Worker not found")
-    return db_worker 
+    return db_worker

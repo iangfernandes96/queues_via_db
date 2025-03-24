@@ -108,4 +108,4 @@ MIT
 ### Timezone Handling
 - All datetime fields are now consistently handled with timezone awareness
 - Scheduled tasks correctly interpret the provided datetime
-- Stored times include timezone information for accurate calculations 
+- Stored times include timezone information for accurate calculations

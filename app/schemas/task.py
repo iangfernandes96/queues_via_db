@@ -1,8 +1,9 @@
-from datetime import datetime
-from typing import Any, Dict, Optional, Union, List
-from pydantic import BaseModel, Field, UUID4
-from enum import Enum
 import uuid
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import UUID4, BaseModel, Field
 
 
 class TaskStatusEnum(str, Enum):
@@ -57,10 +58,7 @@ class Task(TaskBase):
 
     class Config:
         from_attributes = True
-        json_encoders = {
-            datetime: lambda dt: dt.isoformat(),
-            UUID4: lambda v: str(v)
-        }
+        json_encoders = {datetime: lambda dt: dt.isoformat(), UUID4: lambda v: str(v)}
 
 
 # Worker Schemas
@@ -78,16 +76,13 @@ class Worker(WorkerBase):
     last_heartbeat: datetime
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
-        json_encoders = {
-            datetime: lambda dt: dt.isoformat(),
-            UUID4: lambda v: str(v)
-        }
+        json_encoders = {datetime: lambda dt: dt.isoformat(), UUID4: lambda v: str(v)}
 
 
 # Schema for task list response
 class TaskList(BaseModel):
     items: List[Task]
-    total: int 
+    total: int

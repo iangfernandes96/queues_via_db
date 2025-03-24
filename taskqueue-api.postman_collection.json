@@ -1,0 +1,629 @@
+{
+    "info": {
+        "name": "Task Queue System API",
+        "description": "A collection for testing the Task Queue System built with FastAPI and PostgreSQL",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "12345678"
+    },
+    "item": [
+        {
+            "name": "Health Check",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        ""
+                    ]
+                },
+                "description": "Basic health check to ensure API and DB are working"
+            },
+            "response": []
+        },
+        {
+            "name": "Tasks",
+            "item": [
+                {
+                    "name": "Create Task",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"example_task\",\n  \"payload\": {\n    \"action\": \"print\",\n    \"message\": \"Hello, World!\"\n  },\n  \"priority\": 2,\n  \"scheduled_at\": null\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tasks",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tasks"
+                            ]
+                        },
+                        "description": "Create a new task in the queue"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Scheduled Task",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"scheduled_task\",\n  \"payload\": {\n    \"action\": \"process\",\n    \"data\": \"This is a scheduled task\"\n  },\n  \"priority\": 3,\n  \"scheduled_at\": \"{{$isoTimestamp}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tasks",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tasks"
+                            ]
+                        },
+                        "description": "Create a task scheduled for future execution"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get All Tasks",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tasks?skip=0&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tasks"
+                            ],
+                            "query": [
+                                {
+                                    "key": "skip",
+                                    "value": "0",
+                                    "description": "Number of records to skip"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Maximum number of records to return"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "pending",
+                                    "description": "Filter by status (pending, scheduled, running, paused, completed, failed)",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Get all tasks with pagination and optional status filtering"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Task by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tasks/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tasks",
+                                "1"
+                            ]
+                        },
+                        "description": "Get a specific task by ID"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Task",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"updated_task_name\",\n  \"payload\": {\n    \"action\": \"print\",\n    \"message\": \"Updated message\"\n  },\n  \"priority\": 4\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tasks/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tasks",
+                                "1"
+                            ]
+                        },
+                        "description": "Update a specific task"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Task",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tasks/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tasks",
+                                "1"
+                            ]
+                        },
+                        "description": "Delete a specific task"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Pause Task",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tasks/1/pause",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tasks",
+                                "1",
+                                "pause"
+                            ]
+                        },
+                        "description": "Pause a running or pending task"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Resume Task",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tasks/1/resume",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tasks",
+                                "1",
+                                "resume"
+                            ]
+                        },
+                        "description": "Resume a paused task"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Pending Tasks",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tasks?status=pending",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tasks"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "pending"
+                                }
+                            ]
+                        },
+                        "description": "Get all pending tasks"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Completed Tasks",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/tasks?status=completed",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "tasks"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "completed"
+                                }
+                            ]
+                        },
+                        "description": "Get all completed tasks"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Workers",
+            "item": [
+                {
+                    "name": "Create Worker",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"worker-1\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/workers",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "workers"
+                            ]
+                        },
+                        "description": "Register a new worker"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Worker by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/workers/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "workers",
+                                "1"
+                            ]
+                        },
+                        "description": "Get worker information by ID"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Worker Heartbeat",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/workers/1/heartbeat",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "workers",
+                                "1",
+                                "heartbeat"
+                            ]
+                        },
+                        "description": "Update the heartbeat timestamp of a worker"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Set Worker Status",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"inactive\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/workers/1/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "workers",
+                                "1",
+                                "status"
+                            ]
+                        },
+                        "description": "Set the status of a worker"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Task Workflow Tests",
+            "item": [
+                {
+                    "name": "Create and Track Task",
+                    "item": [
+                        {
+                            "name": "1. Create Task",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "pm.test(\"Status code is 201\", function () {",
+                                            "    pm.response.to.have.status(201);",
+                                            "});",
+                                            "",
+                                            "pm.test(\"Task created successfully\", function () {",
+                                            "    var jsonData = pm.response.json();",
+                                            "    pm.expect(jsonData.name).to.eql(\"workflow_test_task\");",
+                                            "    pm.expect(jsonData.id).to.be.a('number');",
+                                            "    pm.collectionVariables.set(\"workflow_task_id\", jsonData.id);",
+                                            "});"
+                                        ],
+                                        "type": "text/javascript"
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"name\": \"workflow_test_task\",\n  \"payload\": {\n    \"action\": \"test\",\n    \"data\": \"Workflow test data\"\n  },\n  \"priority\": 2\n}"
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/tasks",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "tasks"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "2. Check Task Status",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "pm.test(\"Status code is 200\", function () {",
+                                            "    pm.response.to.have.status(200);",
+                                            "});",
+                                            "",
+                                            "pm.test(\"Task found\", function () {",
+                                            "    var jsonData = pm.response.json();",
+                                            "    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get(\"workflow_task_id\")));",
+                                            "    pm.expect(jsonData.name).to.eql(\"workflow_test_task\");",
+                                            "});"
+                                        ],
+                                        "type": "text/javascript"
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/tasks/{{workflow_task_id}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "tasks",
+                                        "{{workflow_task_id}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "3. Pause Task",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "pm.test(\"Status code is 200\", function () {",
+                                            "    pm.response.to.have.status(200);",
+                                            "});",
+                                            "",
+                                            "pm.test(\"Task paused\", function () {",
+                                            "    var jsonData = pm.response.json();",
+                                            "    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get(\"workflow_task_id\")));",
+                                            "    pm.expect(jsonData.status).to.eql(\"paused\");",
+                                            "});"
+                                        ],
+                                        "type": "text/javascript"
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "PATCH",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/tasks/{{workflow_task_id}}/pause",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "tasks",
+                                        "{{workflow_task_id}}",
+                                        "pause"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "4. Resume Task",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "pm.test(\"Status code is 200\", function () {",
+                                            "    pm.response.to.have.status(200);",
+                                            "});",
+                                            "",
+                                            "pm.test(\"Task resumed\", function () {",
+                                            "    var jsonData = pm.response.json();",
+                                            "    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get(\"workflow_task_id\")));",
+                                            "    pm.expect(jsonData.status).to.eql(\"pending\");",
+                                            "});"
+                                        ],
+                                        "type": "text/javascript"
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "PATCH",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/tasks/{{workflow_task_id}}/resume",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "tasks",
+                                        "{{workflow_task_id}}",
+                                        "resume"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "5. Delete Task",
+                            "event": [
+                                {
+                                    "listen": "test",
+                                    "script": {
+                                        "exec": [
+                                            "pm.test(\"Status code is 204\", function () {",
+                                            "    pm.response.to.have.status(204);",
+                                            "});"
+                                        ],
+                                        "type": "text/javascript"
+                                    }
+                                }
+                            ],
+                            "request": {
+                                "method": "DELETE",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/tasks/{{workflow_task_id}}",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "tasks",
+                                        "{{workflow_task_id}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ],
+                    "description": "Tests the full workflow of creating, pausing, resuming and deleting a task"
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8000",
+            "type": "string"
+        },
+        {
+            "key": "workflow_task_id",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

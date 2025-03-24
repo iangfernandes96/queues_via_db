@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from typing import Optional
+from uuid import UUID
 
 from app.core.config import settings
 from app.services.task_queue import TaskQueueService
@@ -44,7 +45,7 @@ async def get_db():
 class Worker:
     def __init__(self):
         self.running = True
-        self.worker_id: Optional[int] = None
+        self.worker_id: Optional[UUID] = None
         self.worker_name = f"worker-{socket.gethostname()}-{os.getpid()}"
         self.poll_interval = settings.WORKER_POLL_INTERVAL
         self.max_tasks = settings.WORKER_MAX_TASKS

@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Any, Dict, Optional, Union
-from pydantic import BaseModel, Field
+from typing import Any, Dict, Optional, Union, List
+from pydantic import BaseModel, Field, UUID4
 from enum import Enum
+import uuid
 
 
 class TaskStatusEnum(str, Enum):
@@ -13,11 +14,11 @@ class TaskStatusEnum(str, Enum):
     FAILED = "failed"
 
 
-class TaskPriorityEnum(int, Enum):
-    LOW = 1
-    MEDIUM = 2
-    HIGH = 3
-    CRITICAL = 4
+class TaskPriorityEnum(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
 
 
 # Base Task schema with common attributes
@@ -44,18 +45,22 @@ class TaskUpdate(BaseModel):
 
 # Schema for returning a task from the API
 class Task(TaskBase):
-    id: int
+    id: UUID4
     status: TaskStatusEnum
     created_at: datetime
     updated_at: datetime
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-    worker_id: Optional[int] = None
+    worker_id: Optional[UUID4] = None
     result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
 
     class Config:
         from_attributes = True
+        json_encoders = {
+            datetime: lambda dt: dt.isoformat(),
+            UUID4: lambda v: str(v)
+        }
 
 
 # Worker Schemas
@@ -69,10 +74,20 @@ class WorkerCreate(WorkerBase):
 
 
 class Worker(WorkerBase):
-    id: int
+    id: UUID4
     last_heartbeat: datetime
     created_at: datetime
     updated_at: datetime
-
+    
     class Config:
-        from_attributes = True 
+        from_attributes = True
+        json_encoders = {
+            datetime: lambda dt: dt.isoformat(),
+            UUID4: lambda v: str(v)
+        }
+
+
+# Schema for task list response
+class TaskList(BaseModel):
+    items: List[Task]
+    total: int 

@@ -1,10 +1,11 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 
 from app.db.database import get_db
 from app.db.models import TaskStatus
-from app.schemas.task import Task, TaskCreate, TaskUpdate
+from app.schemas.task import Task, TaskCreate, TaskUpdate, TaskList
 from app.services.task_queue import TaskQueueService
 
 router = APIRouter()
@@ -18,7 +19,7 @@ async def create_task(task: TaskCreate, db: AsyncSession = Depends(get_db)):
     return await TaskQueueService.create_task(db=db, task_in=task)
 
 
-@router.get("/", response_model=List[Task])
+@router.get("/", response_model=TaskList)
 async def get_tasks(
     skip: int = 0, 
     limit: int = 100, 
@@ -31,16 +32,24 @@ async def get_tasks(
     if status:
         try:
             task_status = TaskStatus[status.upper()]
-            return await TaskQueueService.get_tasks_by_status(
+            tasks = await TaskQueueService.get_tasks_by_status(
                 db=db, status=task_status, skip=skip, limit=limit
             )
+            total = len(tasks)  # This is a simplification; in production, do a count query
+            return {"items": tasks, "total": total}
         except KeyError:
             raise HTTPException(status_code=400, detail=f"Invalid status: {status}")
-    return await TaskQueueService.get_tasks(db=db, skip=skip, limit=limit)
+    
+    tasks = await TaskQueueService.get_tasks(db=db, skip=skip, limit=limit)
+    total = await TaskQueueService.get_tasks_count(db=db)
+    return {"items": tasks, "total": total}
 
 
 @router.get("/{task_id}", response_model=Task)
-async def get_task(task_id: int, db: AsyncSession = Depends(get_db)):
+async def get_task(
+    task_id: UUID = Path(..., description="The UUID of the task to retrieve"),
+    db: AsyncSession = Depends(get_db)
+):
     """
     Get a task by ID.
     """
@@ -51,7 +60,11 @@ async def get_task(task_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/{task_id}", response_model=Task)
-async def update_task(task_id: int, task: TaskUpdate, db: AsyncSession = Depends(get_db)):
+async def update_task(
+    task: TaskUpdate,
+    task_id: UUID = Path(..., description="The UUID of the task to update"),
+    db: AsyncSession = Depends(get_db)
+):
     """
     Update a task by ID.
     """
@@ -62,7 +75,10 @@ async def update_task(task_id: int, task: TaskUpdate, db: AsyncSession = Depends
 
 
 @router.delete("/{task_id}", status_code=204)
-async def delete_task(task_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_task(
+    task_id: UUID = Path(..., description="The UUID of the task to delete"),
+    db: AsyncSession = Depends(get_db)
+):
     """
     Delete a task by ID.
     """
@@ -73,7 +89,10 @@ async def delete_task(task_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/{task_id}/pause", response_model=Task)
-async def pause_task(task_id: int, db: AsyncSession = Depends(get_db)):
+async def pause_task(
+    task_id: UUID = Path(..., description="The UUID of the task to pause"),
+    db: AsyncSession = Depends(get_db)
+):
     """
     Pause a task by ID.
     """
@@ -87,7 +106,10 @@ async def pause_task(task_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.patch("/{task_id}/resume", response_model=Task)
-async def resume_task(task_id: int, db: AsyncSession = Depends(get_db)):
+async def resume_task(
+    task_id: UUID = Path(..., description="The UUID of the task to resume"),
+    db: AsyncSession = Depends(get_db)
+):
     """
     Resume a paused task by ID.
     """

@@ -68,4 +68,19 @@ The API documentation is available at http://localhost:8000/docs when the system
 
 ## License
 
-MIT 
+MIT
+
+## Recent Updates
+
+### UUID Implementation
+- Task and Worker IDs are now UUIDs instead of integers, providing:
+  - Better distributed system support
+  - No ID collisions when scaling
+  - Built-in creation timestamp information
+  - Improved security by making IDs non-sequential
+- All API endpoints now expect UUIDs in path parameters
+
+### Timezone Handling
+- All datetime fields are now consistently handled with timezone awareness
+- Scheduled tasks correctly interpret the provided datetime
+- Stored times include timezone information for accurate calculations 

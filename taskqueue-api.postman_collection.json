@@ -39,7 +39,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"name\": \"example_task\",\n  \"payload\": {\n    \"action\": \"print\",\n    \"message\": \"Hello, World!\"\n  },\n  \"priority\": 2,\n  \"scheduled_at\": null\n}"
+                            "raw": "{\n  \"name\": \"example_task\",\n  \"payload\": {\n    \"action\": \"print\",\n    \"message\": \"Hello, World!\"\n  },\n  \"priority\": \"MEDIUM\",\n  \"scheduled_at\": null\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/tasks",
@@ -53,10 +53,50 @@
                         },
                         "description": "Create a new task in the queue"
                     },
-                    "response": []
+                    "response": [],
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 201\", function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Save task UUID to environment\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.id).to.be.a('string');",
+                                    "    pm.environment.set(\"taskUuid\", jsonData.id);",
+                                    "    console.log(\"Saved task UUID: \" + jsonData.id);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ]
                 },
                 {
                     "name": "Create Scheduled Task",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 201\", function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Save scheduled task UUID to environment\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.id).to.be.a('string');",
+                                    "    pm.environment.set(\"scheduledTaskUuid\", jsonData.id);",
+                                    "    console.log(\"Saved scheduled task UUID: \" + jsonData.id);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
                     "request": {
                         "method": "POST",
                         "header": [
@@ -67,7 +107,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"name\": \"scheduled_task\",\n  \"payload\": {\n    \"action\": \"process\",\n    \"data\": \"This is a scheduled task\"\n  },\n  \"priority\": 3,\n  \"scheduled_at\": \"{{$isoTimestamp}}\"\n}"
+                            "raw": "{\n  \"name\": \"scheduled_task\",\n  \"payload\": {\n    \"action\": \"process\",\n    \"data\": \"This is a scheduled task\"\n  },\n  \"priority\": \"HIGH\",\n  \"scheduled_at\": \"{{$isoTimestamp}}\"\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/tasks",
@@ -126,14 +166,14 @@
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/tasks/1",
+                            "raw": "{{baseUrl}}/api/tasks/{{taskUuid}}",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "tasks",
-                                "1"
+                                "{{taskUuid}}"
                             ]
                         },
                         "description": "Get a specific task by ID"
@@ -155,14 +195,14 @@
                             "raw": "{\n  \"name\": \"updated_task_name\",\n  \"payload\": {\n    \"action\": \"print\",\n    \"message\": \"Updated message\"\n  },\n  \"priority\": 4\n}"
                         },
                         "url": {
-                            "raw": "{{baseUrl}}/api/tasks/1",
+                            "raw": "{{baseUrl}}/api/tasks/{{taskUuid}}",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "tasks",
-                                "1"
+                                "{{taskUuid}}"
                             ]
                         },
                         "description": "Update a specific task"
@@ -175,14 +215,14 @@
                         "method": "DELETE",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/tasks/1",
+                            "raw": "{{baseUrl}}/api/tasks/{{taskUuid}}",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "tasks",
-                                "1"
+                                "{{taskUuid}}"
                             ]
                         },
                         "description": "Delete a specific task"
@@ -195,14 +235,14 @@
                         "method": "PATCH",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/tasks/1/pause",
+                            "raw": "{{baseUrl}}/api/tasks/{{taskUuid}}/pause",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "tasks",
-                                "1",
+                                "{{taskUuid}}",
                                 "pause"
                             ]
                         },
@@ -216,14 +256,14 @@
                         "method": "PATCH",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/tasks/1/resume",
+                            "raw": "{{baseUrl}}/api/tasks/{{taskUuid}}/resume",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "tasks",
-                                "1",
+                                "{{taskUuid}}",
                                 "resume"
                             ]
                         },
@@ -310,7 +350,27 @@
                                 "workers"
                             ]
                         },
-                        "description": "Register a new worker"
+                        "description": "Register a new worker",
+                        "event": [
+                            {
+                                "listen": "test",
+                                "script": {
+                                    "exec": [
+                                        "pm.test(\"Status code is 201\", function () {",
+                                        "    pm.response.to.have.status(201);",
+                                        "});",
+                                        "",
+                                        "pm.test(\"Save worker UUID to environment\", function () {",
+                                        "    var jsonData = pm.response.json();",
+                                        "    pm.expect(jsonData.id).to.be.a('string');",
+                                        "    pm.environment.set(\"workerUuid\", jsonData.id);",
+                                        "    console.log(\"Saved worker UUID: \" + jsonData.id);",
+                                        "});"
+                                    ],
+                                    "type": "text/javascript"
+                                }
+                            }
+                        ]
                     },
                     "response": []
                 },
@@ -320,14 +380,14 @@
                         "method": "GET",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/workers/1",
+                            "raw": "{{baseUrl}}/api/workers/{{workerUuid}}",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "workers",
-                                "1"
+                                "{{workerUuid}}"
                             ]
                         },
                         "description": "Get worker information by ID"
@@ -340,14 +400,14 @@
                         "method": "PATCH",
                         "header": [],
                         "url": {
-                            "raw": "{{baseUrl}}/api/workers/1/heartbeat",
+                            "raw": "{{baseUrl}}/api/workers/{{workerUuid}}/heartbeat",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "workers",
-                                "1",
+                                "{{workerUuid}}",
                                 "heartbeat"
                             ]
                         },
@@ -370,14 +430,14 @@
                             "raw": "{\n  \"status\": \"inactive\"\n}"
                         },
                         "url": {
-                            "raw": "{{baseUrl}}/api/workers/1/status",
+                            "raw": "{{baseUrl}}/api/workers/{{workerUuid}}/status",
                             "host": [
                                 "{{baseUrl}}"
                             ],
                             "path": [
                                 "api",
                                 "workers",
-                                "1",
+                                "{{workerUuid}}",
                                 "status"
                             ]
                         },
@@ -407,8 +467,9 @@
                                             "pm.test(\"Task created successfully\", function () {",
                                             "    var jsonData = pm.response.json();",
                                             "    pm.expect(jsonData.name).to.eql(\"workflow_test_task\");",
-                                            "    pm.expect(jsonData.id).to.be.a('number');",
+                                            "    pm.expect(jsonData.id).to.be.a('string');",
                                             "    pm.collectionVariables.set(\"workflow_task_id\", jsonData.id);",
+                                            "    console.log(\"Saved workflow task UUID: \" + jsonData.id);",
                                             "});"
                                         ],
                                         "type": "text/javascript"
@@ -425,7 +486,7 @@
                                 ],
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n  \"name\": \"workflow_test_task\",\n  \"payload\": {\n    \"action\": \"test\",\n    \"data\": \"Workflow test data\"\n  },\n  \"priority\": 2\n}"
+                                    "raw": "{\n  \"name\": \"workflow_test_task\",\n  \"payload\": {\n    \"action\": \"test\",\n    \"data\": \"Workflow test data\"\n  },\n  \"priority\": \"MEDIUM\"\n}"
                                 },
                                 "url": {
                                     "raw": "{{baseUrl}}/api/tasks",
@@ -453,7 +514,7 @@
                                             "",
                                             "pm.test(\"Task found\", function () {",
                                             "    var jsonData = pm.response.json();",
-                                            "    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get(\"workflow_task_id\")));",
+                                            "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"workflow_task_id\"));",
                                             "    pm.expect(jsonData.name).to.eql(\"workflow_test_task\");",
                                             "});"
                                         ],
@@ -491,7 +552,7 @@
                                             "",
                                             "pm.test(\"Task paused\", function () {",
                                             "    var jsonData = pm.response.json();",
-                                            "    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get(\"workflow_task_id\")));",
+                                            "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"workflow_task_id\"));",
                                             "    pm.expect(jsonData.status).to.eql(\"paused\");",
                                             "});"
                                         ],
@@ -530,7 +591,7 @@
                                             "",
                                             "pm.test(\"Task resumed\", function () {",
                                             "    var jsonData = pm.response.json();",
-                                            "    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get(\"workflow_task_id\")));",
+                                            "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"workflow_task_id\"));",
                                             "    pm.expect(jsonData.status).to.eql(\"pending\");",
                                             "});"
                                         ],
@@ -622,6 +683,21 @@
         },
         {
             "key": "workflow_task_id",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "taskUuid",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "scheduledTaskUuid",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "workerUuid",
             "value": "",
             "type": "string"
         }

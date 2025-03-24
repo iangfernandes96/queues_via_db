@@ -40,4 +40,13 @@ Thumbs.db
 .coverage
 htmlcov/
 alembic/versions/*.py
-!alembic/versions/__init__.py 
+!alembic/versions/__init__.py
+
+# Linters and formatters
+.pytest_cache/
+.mypy_cache/
+.coverage
+.tox/
+.nox/
+.pylint.d/
+.ruff_cache/ 

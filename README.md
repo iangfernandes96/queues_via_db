@@ -41,30 +41,55 @@ The API will be available at http://localhost:8000.
 ```bash
 curl -X POST "http://localhost:8000/api/tasks/" \
      -H "Content-Type: application/json" \
-     -d '{"name": "example_task", "payload": {"key": "value"}, "priority": 1, "scheduled_at": "2023-10-01T10:00:00"}'
+     -d '{"name": "example_task", "payload": {"key": "value"}, "priority": "MEDIUM", "scheduled_at": "2023-10-01T10:00:00"}'
 ```
 
 #### Getting Task Status
 
 ```bash
-curl -X GET "http://localhost:8000/api/tasks/{task_id}"
+curl -X GET "http://localhost:8000/api/tasks/{task_uuid}"
 ```
 
 #### Pausing a Task
 
 ```bash
-curl -X PATCH "http://localhost:8000/api/tasks/{task_id}/pause"
+curl -X PATCH "http://localhost:8000/api/tasks/{task_uuid}/pause"
 ```
 
 #### Resuming a Task
 
 ```bash
-curl -X PATCH "http://localhost:8000/api/tasks/{task_id}/resume"
+curl -X PATCH "http://localhost:8000/api/tasks/{task_uuid}/resume"
 ```
 
 ## API Documentation
 
 The API documentation is available at http://localhost:8000/docs when the system is running.
+
+## Development
+
+For developers working on this project:
+
+1. Install development dependencies:
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+
+2. Install pre-commit hooks:
+   ```bash
+   pre-commit install
+   ```
+
+3. Run linters and formatters:
+   ```bash
+   pre-commit run --all-files
+   ```
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed instructions on:
+- Setting up your development environment
+- Using linters and formatters
+- Running tests
+- Contribution guidelines
 
 ## License
 

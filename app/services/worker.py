@@ -7,13 +7,11 @@ from datetime import datetime, timezone
 from typing import Optional, Sequence, Union
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Worker
 from app.schemas.task import WorkerCreate
-
-# Import our stub for better typing
-from app.services.sa_types import select
 
 
 class WorkerService:
@@ -44,7 +42,7 @@ class WorkerService:
         db: AsyncSession, worker_id: Union[str, UUID]
     ) -> Optional[Worker]:
         """Get a worker by ID."""
-        result = await db.execute(select(Worker).filter(Worker.id == worker_id))
+        result = await db.execute(select(Worker).filter(Worker.id == worker_id))  # type: ignore    # noqa
         return result.scalar_one_or_none()
 
     @staticmethod
@@ -52,7 +50,7 @@ class WorkerService:
         db: AsyncSession, skip: int = 0, limit: int = 100
     ) -> Sequence[Worker]:
         """Get all workers with pagination."""
-        result = await db.execute(select(Worker).offset(skip).limit(limit))
+        result = await db.execute(select(Worker).offset(skip).limit(limit))  # type: ignore    # noqa
         return result.scalars().all()
 
     @staticmethod

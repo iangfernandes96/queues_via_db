@@ -42,6 +42,9 @@ def generate_uuid() -> str:
 class Task(Base):
     """Task model."""
 
+    # Allow non-Mapped type annotations
+    __allow_unmapped__ = True
+
     __tablename__ = "tasks"
 
     id = Column(
@@ -73,6 +76,9 @@ class Task(Base):
 
 class Worker(Base):
     """Worker model."""
+
+    # Allow non-Mapped type annotations
+    __allow_unmapped__ = True
 
     __tablename__ = "workers"
 

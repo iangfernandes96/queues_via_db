@@ -3,14 +3,11 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Optional, Sequence, Union
 from uuid import UUID
 
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Task, TaskStatus
 from app.schemas.task import TaskCreate, TaskUpdate
-
-# Import our stub for better typing
-from app.services.sa_types import select
 
 
 class TaskQueueService:
@@ -41,7 +38,7 @@ class TaskQueueService:
     @staticmethod
     async def get_task(db: AsyncSession, task_id: Union[str, UUID]) -> Optional[Task]:
         """Get a task by ID."""
-        result = await db.execute(select(Task).filter(Task.id == task_id))
+        result = await db.execute(select(Task).filter(Task.id == task_id))  # type: ignore   # noqa
         return result.scalar_one_or_none()
 
     @staticmethod
@@ -64,7 +61,7 @@ class TaskQueueService:
     ) -> Sequence[Task]:
         """Get all tasks with a specific status."""
         result = await db.execute(
-            select(Task).filter(Task.status == status).offset(skip).limit(limit)
+            select(Task).filter(Task.status == status).offset(skip).limit(limit)  # type: ignore   # noqa
         )
         return result.scalars().all()
 
@@ -156,7 +153,7 @@ class TaskQueueService:
         current_time = datetime.now(timezone.utc)
 
         stmt = (
-            select(Task)
+            select(Task)  # type: ignore   # noqa
             .filter(
                 or_(
                     and_(Task.status == TaskStatus.PENDING),

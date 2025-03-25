@@ -3,6 +3,19 @@
 
 This module provides type annotations for SQLAlchemy constructs
 that are challenging for mypy to understand.
+
+IMPORTANT: This module is for use with type checkers ONLY and should NOT
+be imported at runtime. Always import the actual SQLAlchemy functions and
+classes in your runtime code.
+
+Example usage in a .py file:
+    # In runtime code:
+    from sqlalchemy import select
+
+    # For type checking only (in a stub file or with TYPE_CHECKING):
+    from typing import TYPE_CHECKING
+    if TYPE_CHECKING:
+        from app.services.sa_types import Select
 """
 from typing import Any, Callable, Generic, TypeVar
 

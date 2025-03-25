@@ -1,0 +1,42 @@
+[MASTER]
+ignore=migrations,alembic,tests
+ignore-patterns=test_.*?py
+
+[MESSAGES CONTROL]
+disable=
+    C0111,  # Missing docstring
+    R0903,  # Too few public methods
+    C0103,  # Invalid name
+    R0913,  # Too many arguments
+    R0914,  # Too many local variables
+    W0621,  # Redefining name from outer scope
+    W0622,  # Redefining built-in
+    W0703,  # Broad except clause
+    C0301,  # Line too long
+    R0902,  # Too many instance attributes
+    E1101,  # No member
+    W0212,  # Protected member access
+    R1705,  # Unnecessary "else" after "return"
+    R1710,  # Either all return statements in a function should return an expression, or none of them should
+    E0401,  # Import error
+    W1203,  # Use % formatting in logging functions
+    C0415,  # Import outside toplevel (equivalent to flake8 B008)
+    W0613,  # Unused argument 'frame'
+    W0718,  # Catching too general exception
+    E1136,  # Unsubscriptable object (False positive with SQLAlchemy)
+    W0201,  # Attribute defined outside __init__ (for SQLAlchemy models)
+    C0303,  # Trailing whitespace
+    W0108,  # Lambda may not be necessary
+    W2301,  # Unnecessary ellipsis constant
+    R1702   # Too many nested blocks
+
+[REPORTS]
+output-format=text
+reports=yes
+evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+
+[SIMILARITIES]
+min-similarity-lines=5
+ignore-comments=yes
+ignore-docstrings=yes
+ignore-imports=yes

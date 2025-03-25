@@ -1,6 +1,6 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+"""Database configuration and session management for the Task Queue System."""
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
 
@@ -12,7 +12,7 @@ SQLALCHEMY_DATABASE_URL = str(settings.DATABASE_URL).replace(
 
 # Create async engine
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=False)
-AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+AsyncSessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 Base = declarative_base()
 

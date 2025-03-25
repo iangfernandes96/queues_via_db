@@ -1,16 +1,18 @@
+"""Service layer for task queue operations with database access."""
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Sequence, Union
 from uuid import UUID
 
-from sqlalchemy import and_, delete, or_, select, update
+from sqlalchemy import and_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
-from app.db.models import Task, TaskPriority, TaskStatus, Worker
-from app.schemas.task import TaskCreate, TaskPriorityEnum, TaskUpdate
+from app.db.models import Task, TaskStatus
+from app.schemas.task import TaskCreate, TaskUpdate
 
 
 class TaskQueueService:
+    """Service class for handling task queue operations in the database."""
+
     @staticmethod
     async def create_task(db: AsyncSession, task_in: TaskCreate) -> Task:
         """Create a new task in the queue."""
@@ -36,13 +38,13 @@ class TaskQueueService:
     @staticmethod
     async def get_task(db: AsyncSession, task_id: Union[str, UUID]) -> Optional[Task]:
         """Get a task by ID."""
-        result = await db.execute(select(Task).filter(Task.id == task_id))
+        result = await db.execute(select(Task).filter(Task.id == task_id))  # type: ignore   # noqa
         return result.scalar_one_or_none()
 
     @staticmethod
     async def get_tasks(
         db: AsyncSession, skip: int = 0, limit: int = 100
-    ) -> List[Task]:
+    ) -> Sequence[Task]:
         """Get all tasks with pagination."""
         result = await db.execute(select(Task).offset(skip).limit(limit))
         return result.scalars().all()
@@ -56,10 +58,10 @@ class TaskQueueService:
     @staticmethod
     async def get_tasks_by_status(
         db: AsyncSession, status: TaskStatus, skip: int = 0, limit: int = 100
-    ) -> List[Task]:
+    ) -> Sequence[Task]:
         """Get all tasks with a specific status."""
         result = await db.execute(
-            select(Task).filter(Task.status == status).offset(skip).limit(limit)
+            select(Task).filter(Task.status == status).offset(skip).limit(limit)  # type: ignore   # noqa
         )
         return result.scalars().all()
 
@@ -147,11 +149,11 @@ class TaskQueueService:
         db: AsyncSession, worker_id: Union[str, UUID]
     ) -> Optional[Task]:
         """Get the next task to process for a worker."""
-        # Get tasks that are ready to run (PENDING or SCHEDULED with a scheduled_at time in the past)
+        # Get tasks ready to run (PENDING or SCHEDULED with scheduled_at in the past)
         current_time = datetime.now(timezone.utc)
 
         stmt = (
-            select(Task)
+            select(Task)  # type: ignore   # noqa
             .filter(
                 or_(
                     and_(Task.status == TaskStatus.PENDING),

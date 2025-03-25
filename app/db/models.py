@@ -1,6 +1,11 @@
+"""Database models for the Task Queue System.
+
+This module defines the database models for the Task Queue System.
+"""
 import enum
 import uuid
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import JSON, Column, DateTime, Enum, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -10,6 +15,8 @@ from app.db.database import Base
 
 
 class TaskStatus(enum.Enum):
+    """Enum for task status."""
+
     PENDING = "pending"
     SCHEDULED = "scheduled"
     RUNNING = "running"
@@ -19,18 +26,25 @@ class TaskStatus(enum.Enum):
 
 
 class TaskPriority(enum.Enum):
+    """Enum for task priority."""
+
     LOW = 1
     MEDIUM = 2
     HIGH = 3
     CRITICAL = 4
 
 
-def generate_uuid():
+def generate_uuid() -> str:
     """Generate a UUID as string."""
     return str(uuid.uuid4())
 
 
 class Task(Base):
+    """Task model."""
+
+    # Allow non-Mapped type annotations
+    __allow_unmapped__ = True
+
     __tablename__ = "tasks"
 
     id = Column(
@@ -56,11 +70,16 @@ class Task(Base):
     result = Column(JSON, nullable=True)
     error = Column(Text, nullable=True)
 
-    # Relationship to Worker
-    worker = relationship("Worker", back_populates="tasks")
+    # Relationship to Worker with type annotation
+    worker: Any = relationship("Worker", back_populates="tasks")
 
 
 class Worker(Base):
+    """Worker model."""
+
+    # Allow non-Mapped type annotations
+    __allow_unmapped__ = True
+
     __tablename__ = "workers"
 
     id = Column(
@@ -81,5 +100,5 @@ class Worker(Base):
         nullable=False,
     )
 
-    # Relationship to Task
-    tasks = relationship("Task", back_populates="worker")
+    # Relationship to Task with type annotation
+    tasks: Any = relationship("Task", back_populates="worker")

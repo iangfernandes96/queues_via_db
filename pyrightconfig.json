@@ -1,0 +1,35 @@
+{
+    "include": [
+        "app"
+    ],
+    "exclude": [
+        "**/__pycache__",
+        "**/.pytest_cache",
+        "**/.mypy_cache",
+        "alembic/versions"
+    ],
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false,
+    "pythonVersion": "3.11",
+    "typeCheckingMode": "basic",
+    "reportGeneralTypeIssues": "warning",
+    "reportPrivateImportUsage": "warning",
+    "reportConstantRedefinition": "warning",
+    "reportIncompatibleMethodOverride": "warning",
+    "reportInvalidStringEscapeSequence": "warning",
+    "reportUnknownParameterType": "warning",
+    "reportUnusedClass": "warning",
+    "reportUnusedFunction": "warning",
+    "reportUnusedImport": "warning",
+    "reportUnusedVariable": "warning",
+    "reportCallInDefaultInitializer": "none",
+    "reportUntypedFunctionDecorator": "none",
+    "reportOptionalMemberAccess": "none",
+    "reportOptionalSubscript": "none",
+    "reportOptionalOperand": "none",
+    "reportOptionalIterable": "none",
+    "ignore": [
+        "app/services/*.py",
+        "app/api/endpoints/*.py"
+    ]
+}

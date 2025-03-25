@@ -1,11 +1,12 @@
+"""Alembic environment configuration for database migrations."""
 import asyncio
 import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
-from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import context
+from app.db.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,8 +19,6 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from app.db.models import Base
-
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -50,7 +49,7 @@ def run_migrations_offline() -> None:
     """
     url = config.get_main_option("sqlalchemy.url")
     # For offline mode, convert asyncpg URL back to standard format if needed
-    if "postgresql+asyncpg://" in url:
+    if url and "postgresql+asyncpg://" in url:
         url = url.replace("postgresql+asyncpg://", "postgresql://")
 
     context.configure(
@@ -64,7 +63,8 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def do_run_migrations(connection):
+def do_run_migrations(connection):  # noqa
+    """Execute migration steps on the provided connection."""
     context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
@@ -81,10 +81,9 @@ async def run_migrations_online_async() -> None:
 
     # Alembic doesn't support asyncpg directly, so we need to convert it
     # to a standard psycopg2 URL for the connection
-    if "postgresql+asyncpg://" in url:
+    sync_url = url
+    if url and "postgresql+asyncpg://" in url:
         sync_url = url.replace("postgresql+asyncpg://", "postgresql://")
-    else:
-        sync_url = url
 
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
